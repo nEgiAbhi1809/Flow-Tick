@@ -4,10 +4,19 @@
 services:
   user-service:
     build: ./user-service
+    container_name: user-service
     ports:
       - "3000:3000"
     environment:
       - MONGO_URL=mongodb://mongo:27017/userdb
+    depends_on:
+      - mongo
+
+  task-service:
+    build: ./task-service
+    ports:
+      - "3001:3001"
+    container_name: task-service
     depends_on:
       - mongo
 
