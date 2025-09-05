@@ -1,10 +1,19 @@
 import { Task } from "../models/task.model.js";
+import { getChannel } from "../config/rabbitmqfile.js";
 
 export const createTask = async (req, res) => {
     try {
         const { title, description, userId } = req.body;
         const task = new Task({ title, description, userId });
         await task.save();
+
+
+        const message = {taskID :task._id,userId,title};
+        const channel = getChannel(); 
+        if(!channel){
+            return res.status(500).json({ error: 'RabbitMQ channel not established' });
+        }
+        channel.sendToQueue("taskQueue", Buffer.from(JSON.stringify(message)));
         res.status(201).json(task);
     } 
     catch (err) {
